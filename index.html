@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Construction Worker & Payroll Manager | निर्माण श्रमिक एवं वेतन प्रबंधक</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter & Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Poppins', 'sans-serif']
+                    },
+                    colors: {
+                        construction: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                            700: '#b45309',
+                            850: '#78350f',
+                            900: '#451a03'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar and animations */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        .fade-in {
+            animation: fadeIn 0.2s ease-in-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Mobile touch optimization */
+        button, input, select {
+            touch-action: manipulation;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans h-full flex flex-col justify-between selection:bg-amber-500 selection:text-white">
+
+    <!-- Top Header -->
+    <header class="bg-slate-900 border-b-4 border-amber-500 text-white shadow-md sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 flex flex-wrap justify-between items-center gap-3">
+            <div class="flex items-center space-x-2.5">
+                <div class="w-9 h-9 rounded-xl bg-amber-500 flex items-center justify-center text-slate-950 font-bold text-lg shadow-inner">
+                    <i class="fa-solid fa-hard-hat"></i>
+                </div>
+                <div>
+                    <h1 class="font-heading text-base sm:text-lg font-bold tracking-tight text-white flex items-center gap-1.5">
+                        <span>BuildLedger</span>
+                        <span class="text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-sans uppercase font-semibold">Pro</span>
+                    </h1>
+                    <p class="text-[11px] text-slate-400 hidden sm:block" data-en="Construction Worker & Payroll Manager" data-hi="निर्माण श्रमिक एवं वेतन प्रबंधक">Construction Worker & Payroll Manager</p>
+                </div>
+            </div>
+
+            <!-- Top Actions: Language Toggle & Quick Add Button -->
+            <div class="flex items-center space-x-2">
+                <!-- Language Toggle -->
+                <button id="langToggleBtn" onclick="toggleLanguage()" class="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-2 rounded-xl text-xs sm:text-sm font-medium transition shadow-sm">
+                    <i class="fa-solid fa-globe text-amber-400"></i>
+                    <span id="langText">हिन्दी / English</span>
+                </button>
+
+                <!-- Add Worker Button -->
+                <button onclick="openModal()" class="flex items-center space-x-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold shadow-md transition transform active:scale-95">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span data-en="Add Worker" data-hi="मजदूर जोड़ें">Add Worker</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs for Mobile & Desktop -->
+    <div class="bg-white border-b border-slate-200 shadow-sm sticky top-[61px] sm:top-[65px] z-20">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex space-x-2 overflow-x-auto py-2">
+            <button onclick="switchTab('roster')" id="tabRosterBtn" class="flex items-center space-x-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap bg-amber-500 text-slate-950 shadow-sm">
+                <i class="fa-solid fa-users-rectangle"></i>
+                <span data-en="Workers & Ledger" data-hi="मजदूर एवं खाता">Workers & Ledger</span>
+            </button>
+            <button onclick="switchTab('attendance')" id="tabAttendanceBtn" class="flex items-center space-x-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200">
+                <i class="fa-solid fa-calendar-check"></i>
+                <span data-en="Daily Attendance" data-hi="दैनिक उपस्थिति (Attendance)">Daily Attendance</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 space-y-5">
+
+        <!-- Notification Toast -->
+        <div id="toast" class="hidden fixed bottom-6 right-4 left-4 sm:left-auto z-50 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl border-l-4 border-amber-500 flex items-center space-x-3 transition transform duration-300">
+            <i id="toastIcon" class="fa-solid fa-circle-check text-amber-400 text-lg"></i>
+            <div>
+                <p id="toastTitle" class="font-bold text-sm">Success</p>
+                <p id="toastMsg" class="text-xs text-slate-300">Action completed successfully.</p>
+            </div>
+        </div>
+
+        <!-- Dashboard Summary Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <!-- Total Workers -->
+            <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500" data-en="Total Workers" data-hi="कुल मजदूर">Total Workers</p>
+                    <h3 id="statTotalWorkers" class="text-xl sm:text-2xl font-bold font-heading text-slate-900 mt-0.5">0</h3>
+                    <span class="text-[10px] text-emerald-600 font-medium bg-emerald-50 px-2 py-0.5 rounded-full inline-block mt-1.5" data-en="Active site" data-hi="सक्रिय साइट">Active site</span>
+                </div>
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg sm:text-xl shadow-sm flex-shrink-0">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+            </div>
+
+            <!-- Total Payroll -->
+            <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500" data-en="Total Payroll" data-hi="कुल वेतन">Total Payroll</p>
+                    <h3 id="statTotalPayroll" class="text-xl sm:text-2xl font-bold font-heading text-slate-900 mt-0.5">₹0</h3>
+                    <span class="text-[10px] text-blue-600 font-medium bg-blue-50 px-2 py-0.5 rounded-full inline-block mt-1.5" data-en="Earned" data-hi="अर्जित">Earned</span>
+                </div>
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-lg sm:text-xl shadow-sm flex-shrink-0">
+                    <i class="fa-solid fa-calculator"></i>
+                </div>
+            </div>
+
+            <!-- Total Advance Given -->
+            <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500" data-en="Total Advance" data-hi="कुल एडवांस">Total Advance</p>
+                    <h3 id="statTotalAdvance" class="text-xl sm:text-2xl font-bold font-heading text-slate-900 mt-0.5">₹0</h3>
+                    <span class="text-[10px] text-amber-600 font-medium bg-amber-50 px-2 py-0.5 rounded-full inline-block mt-1.5" data-en="Given money" data-hi="दिया गया नकद">Given money</span>
+                </div>
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg sm:text-xl shadow-sm flex-shrink-0">
+                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                </div>
+            </div>
+
+            <!-- Total Balance Remaining -->
+            <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500" data-en="Balance Due" data-hi="कुल बकाया">Balance Due</p>
+                    <h3 id="statTotalBalance" class="text-xl sm:text-2xl font-bold font-heading text-rose-600 mt-0.5">₹0</h3>
+                    <span class="text-[10px] text-rose-600 font-medium bg-rose-50 px-2 py-0.5 rounded-full inline-block mt-1.5" data-en="To pay" data-hi="भुगतान शेष">To pay</span>
+                </div>
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center text-lg sm:text-xl shadow-sm flex-shrink-0">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 1: WORKERS ROSTER & LEDGER -->
+        <div id="sectionRoster" class="space-y-4">
+            <!-- Controls & Search Toolbar -->
+            <div class="bg-white p-3.5 sm:p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="relative w-full sm:w-80">
+                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <input type="text" id="searchInput" oninput="filterWorkers()" placeholder="Search worker by name..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition" data-en-placeholder="Search worker by name..." data-hi-placeholder="नाम से मजदूर खोजें...">
+                </div>
+
+                <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
+                    <button onclick="exportData()" class="px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center space-x-1.5 border border-slate-300">
+                        <i class="fa-solid fa-download text-slate-500"></i>
+                        <span data-en="Export CSV" data-hi="CSV निर्यात">Export CSV</span>
+                    </button>
+                    <button onclick="clearAllData()" class="px-3.5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center space-x-1.5 border border-rose-200">
+                        <i class="fa-solid fa-trash-can text-rose-500"></i>
+                        <span data-en="Reset" data-hi="रीसेट">Reset</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Workers Table Container -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-4 sm:px-6 py-3.5 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
+                    <h3 class="font-heading font-bold text-slate-800 text-sm sm:text-base flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-amber-500"></i>
+                        <span data-en="Worker Rosters & Account Ledger" data-hi="मजदूर सूची एवं खाता बही">Worker Rosters & Account Ledger</span>
+                    </h3>
+                    <span id="workerCountBadge" class="text-xs font-semibold bg-slate-200 text-slate-700 px-2.5 py-1 rounded-full">0 Workers</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[750px]">
+                        <thead>
+                            <tr class="bg-slate-100/70 text-slate-600 text-xs font-semibold uppercase tracking-wider border-b border-slate-200">
+                                <th class="py-3 px-4 sm:px-6" data-en="Worker Name" data-hi="मजदूर का नाम">Worker Name</th>
+                                <th class="py-3 px-4" data-en="Pay / Day" data-hi="प्रति दिन वेतन">Pay / Day</th>
+                                <th class="py-3 px-4" data-en="Starting Date" data-hi="ारंभ तिथि">Starting Date</th>
+                                <th class="py-3 px-4 text-center" data-en="Working Days" data-hi="कार्य दिवस">Working Days</th>
+                                <th class="py-3 px-4 text-right" data-en="Total Pay" data-hi="कुल वेतन">Total Pay</th>
+                                <th class="py-3 px-4 text-right" data-en="Given (Advance)" data-hi="दिया गया (Advance)">Given (Advance)</th>
+                                <th class="py-3 px-4 text-right" data-en="Balance Due (Owe)" data-hi="बकाया (कितना देना है)">Balance Due (Owe)</th>
+                                <th class="py-3 px-4 sm:px-6 text-center" data-en="Actions" data-hi="कार्रवाई">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="workersTableBody" class="divide-y divide-slate-200 text-sm">
+                            <!-- Dynamic rows populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="hidden py-14 text-center px-4">
+                    <div class="w-14 h-14 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl border border-amber-200">
+                        <i class="fa-solid fa-helmet-safety"></i>
+                    </div>
+                    <h4 class="font-heading font-bold text-slate-700 text-base" data-en="No workers added yet" data-hi="अभी तक कोई मजदूर नहीं जोड़ा गया">No workers added yet</h4>
+                    <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto" data-en="Click on 'Add Worker' to start managing construction payroll and daily attendance." data-hi="निर्माण वेतन और दैनिक उपस्थिति प्रबंधित करने के लिए 'मजदूर जोड़ें' पर क्लिक करें।">Click on 'Add Worker' to start managing construction payroll and daily attendance.</p>
+                    <button onclick="openModal()" class="mt-4 inline-flex items-center space-x-2 bg-amber-500 hover:bg-amber-600 text-slate-950 px-4 py-2.5 rounded-xl text-xs font-bold shadow transition">
+                        <i class="fa-solid fa-plus"></i>
+                        <span data-en="Add First Worker" data-hi="पहला मजदूर जोड़ें">Add First Worker</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: DAILY ATTENDANCE SYSTEM -->
+        <div id="sectionAttendance" class="hidden space-y-4">
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="flex items-center space-x-3 w-full sm:w-auto">
+                    <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg flex-shrink-0">
+                        <i class="fa-solid fa-calendar-day"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-heading font-bold text-slate-900 text-sm sm:text-base" data-en="Daily Attendance Sheet" data-hi="दैनिक उपस्थिति शीट">Daily Attendance Sheet</h3>
+                        <p class="text-xs text-slate-500" data-en="Mark Present (1), Half-Day (0.5) or Absent (0) per date" data-hi="प्रति तिथि उपस्थिति (उपस्थित, आधा दिन, अनुपस्थित) दर्ज करें">Mark Present (1), Half-Day (0.5) or Absent (0)</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
+                    <label class="text-xs font-bold text-slate-600 uppercase" data-en="Select Date:" data-hi="तिथि चुनें:">Select Date:</label>
+                    <input type="date" id="attendanceDateInput" onchange="renderAttendanceSheet()" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500">
+                </div>
+            </div>
+
+            <!-- Attendance Table -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-4 sm:px-6 py-3.5 border-b border-slate-200 bg-slate-50/50 flex justify-between items-center">
+                    <span id="attendanceDateBadge" class="text-xs font-bold text-slate-700">Date: Today</span>
+                    <span class="text-xs text-slate-500 font-medium" data-en="Changes save automatically" data-hi="परिवर्तन स्वतः सहेजे जाते हैं">Changes save automatically</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[600px]">
+                        <thead>
+                            <tr class="bg-slate-100/70 text-slate-600 text-xs font-semibold uppercase tracking-wider border-b border-slate-200">
+                                <th class="py-3 px-4 sm:px-6" data-en="Worker Name" data-hi="मजदूर का नाम">Worker Name</th>
+                                <th class="py-3 px-4" data-en="Pay / Day" data-hi="प्रति दिन वेतन">Pay / Day</th>
+                                <th class="py-3 px-4 text-center" data-en="Attendance Status" data-hi="उपस्थिति स्थिति">Attendance Status</th>
+                                <th class="py-3 px-4 text-right" data-en="Total Working Days" data-hi="कुल कार्य दिवस">Total Working Days</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceTableBody" class="divide-y divide-slate-200 text-sm">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Empty Attendance State -->
+                <div id="attendanceEmptyState" class="hidden py-14 text-center px-4">
+                    <div class="w-14 h-14 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                        <i class="fa-solid fa-users-slash"></i>
+                    </div>
+                    <h4 class="font-heading font-bold text-slate-700 text-base" data-en="No workers available for attendance" data-hi="उपस्थिति के लिए कोई मजदूर उपलब्ध नहीं है">No workers available for attendance</h4>
+                    <p class="text-xs text-slate-400 mt-1" data-en="Please add workers in the roster tab first." data-hi="कृपया पहले रोस्टर टैब में मजदूर जोड़ें।">Please add workers in the roster tab first.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add / Edit Worker Modal -->
+    <div id="workerModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 fade-in my-auto">
+            <div class="bg-slate-900 px-5 sm:px-6 py-4 text-white flex justify-between items-center border-b-4 border-amber-500">
+                <div class="flex items-center space-x-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center text-slate-950 font-bold">
+                        <i id="modalIcon" class="fa-solid fa-user-plus text-sm"></i>
+                    </div>
+                    <h3 id="modalTitle" class="font-heading font-bold text-base" data-en="Add Worker Profile" data-hi="मजदूर प्रोफ़ाइल जोड़ें">Add Worker Profile</h3>
+                </div>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-white p-1.5 rounded-lg transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="workerForm" onsubmit="handleFormSubmit(event)" class="p-5 sm:p-6 space-y-4">
+                <input type="hidden" id="workerId">
+
+                <!-- Worker Name -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1" data-en="Worker Full Name *" data-hi="मजदूर का पूरा नाम *">Worker Full Name *</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+                            <i class="fa-solid fa-user"></i>
+                        </span>
+                        <input type="text" id="workerName" required placeholder="e.g. Ramesh Kumar / रामेश कुमार" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition">
+                    </div>
+                </div>
+
+                <!-- Pay Per Day & Starting Date Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1" data-en="Pay Per Day (₹) *" data-hi="प्रति दिन वेतन (₹) *">Pay Per Day (₹) *</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 font-semibold">₹</span>
+                            <input type="number" id="payPerDay" required min="0" step="any" oninput="calculatePayroll()" placeholder="500" class="w-full pl-8 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1" data-en="Starting Date *" data-hi="ारंभ तिथि *">Starting Date *</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+                                <i class="fa-regular fa-calendar"></i>
+                            </span>
+                            <input type="date" id="startDate" required class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Initial Working Days & Advance / Given Money Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1" data-en="Initial Working Days *" data-hi="शुरुआती कार्य दिवस *">Initial Working Days *</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+                                <i class="fa-solid fa-business-time"></i>
+                            </span>
+                            <input type="number" id="workingDays" required min="0" step="0.5" oninput="calculatePayroll()" placeholder="12" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1" data-en="Advance / Given Money (₹)" data-hi="दिया गया एडवांस (₹)">Advance / Given Money (₹)</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 font-semibold">₹</span>
+                            <input type="number" id="givenMoney" min="0" step="any" oninput="calculatePayroll()" value="0" placeholder="1000" class="w-full pl-8 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Auto-Calculated Ledger Box -->
+                <div class="bg-amber-50/70 border border-amber-200 rounded-2xl p-4 space-y-2">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-amber-900 flex items-center gap-1.5">
+                        <i class="fa-solid fa-calculator text-amber-600"></i>
+                        <span data-en="Live Financial Summary" data-hi="प्रत्यक्ष वित्तीय सारांश">Live Financial Summary</span>
+                    </h4>
+                    <div class="grid grid-cols-2 gap-4 pt-1">
+                        <div>
+                            <span class="text-xs text-slate-600 block" data-en="Total Pay:" data-hi="कुल वेतन:">Total Pay:</span>
+                            <span id="previewTotalPay" class="font-heading font-bold text-slate-900 text-lg">₹0</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-slate-600 block" data-en="Balance Due:" data-hi="बकाया राशि:">Balance Due:</span>
+                            <span id="previewBalanceDue" class="font-heading font-bold text-rose-600 text-lg">₹0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="flex items-center justify-end space-x-3 pt-2">
+                    <button type="button" onclick="closeModal()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition" data-en="Cancel" data-hi="रद्द करें">Cancel</button>
+                    <button type="submit" class="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl text-sm font-bold shadow-md transition" data-en="Save Worker" data-hi="सुरक्षित करें">Save Worker</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Settle / Pay Modal -->
+    <div id="settleModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden border border-slate-200 fade-in my-auto">
+            <div class="bg-slate-900 px-5 sm:px-6 py-4 text-white flex justify-between items-center border-b-4 border-amber-500">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center text-slate-950 font-bold">
+                        <i class="fa-solid fa-wallet text-sm"></i>
+                    </div>
+                    <h3 class="font-heading font-bold text-base" data-en="Pay / Settle Balance" data-hi="भुगतान समाधान">Pay / Settle Balance</h3>
+                </div>
+                <button onclick="closeSettleModal()" class="text-slate-400 hover:text-white p-1.5 rounded-lg transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="settleForm" onsubmit="handleSettleSubmit(event)" class="p-5 sm:p-6 space-y-4">
+                <input type="hidden" id="settleWorkerId">
+                <div>
+                    <p id="settleWorkerNameDisplay" class="font-heading font-bold text-slate-900 text-base mb-1">Worker Name</p>
+                    <p class="text-xs text-slate-500 mb-2" data-en="Enter the amount you are paying now to update advance/given money." data-hi="दी जा रही राशि दर्ज करें।">Enter payment amount to update balance.</p>
+                </div>
+
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-1">
+                    <div class="flex justify-between text-xs text-slate-600">
+                        <span data-en="Current Balance Due:" data-hi="वर्तमान बकाया:">Current Balance Due:</span>
+                        <span id="settleCurrentBalance" class="font-bold text-slate-900">₹0</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1" data-en="Amount Paying Now (₹) *" data-hi="अभी दी जाने वाली राशि (₹) *">Amount Paying Now (₹) *</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 font-semibold">₹</span>
+                        <input type="number" id="paymentAmount" required min="1" step="any" placeholder="500" class="w-full pl-8 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition">
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end space-x-3 pt-2">
+                    <button type="button" onclick="closeSettleModal()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition" data-en="Cancel" data-hi="रद्द करें">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow transition" data-en="Confirm Payment" data-hi="पुष्टि करें">Confirm Payment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Custom Modal for Alerts/Confirmations (Replaces browser alert/confirm) -->
+    <div id="customModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 text-center space-y-4 fade-in">
+            <div id="customModalIconContainer" class="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto text-xl">
+                <i id="customModalIcon" class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+                <h4 id="customModalTitle" class="font-heading font-bold text-slate-900 text-base">Are you sure?</h4>
+                <p id="customModalMessage" class="text-xs text-slate-500 mt-1">This action cannot be undone.</p>
+            </div>
+            <div id="customModalActions" class="flex space-x-2 pt-2">
+                <button id="customModalCancelBtn" onclick="closeCustomModal()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">Cancel</button>
+                <button id="customModalConfirmBtn" class="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 text-slate-400 py-6 text-center text-xs mt-12">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p class="flex items-center gap-1.5 justify-center">
+                <i class="fa-solid fa-helmet-safety text-amber-500"></i>
+                <span>BuildLedger Pro &bull; Construction Worker & Payroll System</span>
+            </p>
+            <p class="text-slate-500" data-en="Optimized for mobile & tablet builders." data-hi="मोबाइल और टैबलेट के लिए अनुकूलित।">Optimized for mobile & tablet builders.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Application Code -->
+    <script>
+        // State Management
+        let workers = JSON.parse(localStorage.getItem('buildledger_workers')) || [
+            { id: '1', name: 'Ramesh Kumar (रमेश कुमार)', payPerDay: 600, startDate: '2026-03-01', workingDays: 12, givenMoney: 2000 },
+            { id: '2', name: 'Suresh Mistri (सुरेश मिस्त्री)', payPerDay: 850, startDate: '2026-03-05', workingDays: 10, givenMoney: 5000 },
+            { id: '3', name: 'Manoj laborer (मनोज मजदूर)', payPerDay: 450, startDate: '2026-03-10', workingDays: 8, givenMoney: 1000 }
+        ];
+
+        // Attendance Record Map: { "YYYY-MM-DD": { workerId: statusValue } }
+        // statusValue: 1 = Present, 0.5 = Half-Day, 0 = Absent
+        let attendanceRecords = JSON.parse(localStorage.getItem('buildledger_attendance')) || {};
+
+        let currentLang = localStorage.getItem('buildledger_lang') || 'en';
+        let currentTab = 'roster';
+
+        // Initialize App on Load
+        window.onload = function() {
+            setLanguage(currentLang);
+            const todayStr = new Date().toISOString().slice(0, 10);
+            document.getElementById('attendanceDateInput').value = todayStr;
+            renderWorkers();
+            renderAttendanceSheet();
+        };
+
+        // Tab Switching
+        function switchTab(tab) {
+            currentTab = tab;
+            const rosterBtn = document.getElementById('tabRosterBtn');
+            const attendanceBtn = document.getElementById('tabAttendanceBtn');
+            const rosterSec = document.getElementById('sectionRoster');
+            const attendanceSec = document.getElementById('sectionAttendance');
+
+            if (tab === 'roster') {
+                rosterBtn.className = "flex items-center space-x-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap bg-amber-500 text-slate-950 shadow-sm";
+                attendanceBtn.className = "flex items-center space-x-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200";
+                rosterSec.classList.remove('hidden');
+                attendanceSec.classList.add('hidden');
+                renderWorkers();
+            } else {
+                attendanceBtn.className = "flex items-center space-x-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap bg-amber-500 text-slate-950 shadow-sm";
+                rosterBtn.className = "flex items-center space-x-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200";
+                attendanceSec.classList.remove('hidden');
+                rosterSec.classList.add('hidden');
+                renderAttendanceSheet();
+            }
+        }
+
+        // Bilingual Toggle
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'hi' : 'en';
+            localStorage.setItem('buildledger_lang', currentLang);
+            setLanguage(currentLang);
+            if (currentTab === 'roster') renderWorkers();
+            else renderAttendanceSheet();
+        }
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            const elements = document.querySelectorAll('[data-en]');
+            elements.forEach(el => {
+                const text = el.getAttribute(`data-${lang}`);
+                if (text) el.textContent = text;
+            });
+
+            const inputs = document.querySelectorAll('[data-en-placeholder]');
+            inputs.forEach(input => {
+                const ph = input.getAttribute(`data-${lang}-placeholder`);
+                if (ph) input.placeholder = ph;
+            });
+
+            document.getElementById('langText').textContent = lang === 'en' ? 'हिन्दी (Hindi)' : 'English';
+        }
+
+        // Calculations helper (incorporating attendance totals if computed)
+        function calculateWorkerFinancials(worker) {
+            const workingDays = Number(worker.workingDays) || 0;
+            const totalPay = Number(worker.payPerDay) * workingDays;
+            const balanceDue = totalPay - Number(worker.givenMoney);
+            return { totalPay, balanceDue, workingDays };
+        }
+
+        // Live calculation inside modal
+        function calculatePayroll() {
+            const payPerDay = parseFloat(document.getElementById('payPerDay').value) || 0;
+            const workingDays = parseFloat(document.getElementById('workingDays').value) || 0;
+            const givenMoney = parseFloat(document.getElementById('givenMoney').value) || 0;
+
+            const totalPay = payPerDay * workingDays;
+            const balanceDue = totalPay - givenMoney;
+
+            document.getElementById('previewTotalPay').textContent = '₹' + totalPay.toLocaleString('en-IN');
+            const balanceEl = document.getElementById('previewBalanceDue');
+            balanceEl.textContent = '₹' + balanceDue.toLocaleString('en-IN');
+            balanceEl.className = balanceDue < 0 ? 'font-heading font-bold text-emerald-600 text-lg' : 'font-heading font-bold text-rose-600 text-lg';
+        }
+
+        // Render Workers Table
+        function renderWorkers(filteredList = null) {
+            const tbody = document.getElementById('workersTableBody');
+            const emptyState = document.getElementById('emptyState');
+            const dataToRender = filteredList || workers;
+
+            tbody.innerHTML = '';
+
+            if (dataToRender.length === 0) {
+                emptyState.classList.remove('hidden');
+                document.getElementById('workerCountBadge').textContent = `0 Workers`;
+                updateDashboardStats(workers);
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            document.getElementById('workerCountBadge').textContent = `${dataToRender.length} ${currentLang === 'hi' ? 'मजदूर' : 'Workers'}`;
+
+            dataToRender.forEach(w => {
+                // Compute working days including attendance records sum
+                const totalWorkingDays = getComputedWorkingDays(w.id, w.workingDays);
+                const tempWorker = { ...w, workingDays: totalWorkingDays };
+                const { totalPay, balanceDue } = calculateWorkerFinancials(tempWorker);
+                
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50/80 transition border-b border-slate-200';
+                
+                tr.innerHTML = `
+                    <td class="py-3.5 px-4 sm:px-6">
+                        <div class="font-bold text-slate-900">${escapeHtml(w.name)}</div>
+                        <div class="text-[11px] text-slate-400">ID: #${w.id}</div>
+                    </td>
+                    <td class="py-3.5 px-4 font-medium text-slate-700">₹${Number(w.payPerDay).toLocaleString('en-IN')}</td>
+                    <td class="py-3.5 px-4 text-slate-600 text-xs">${formatDate(w.startDate)}</td>
+                    <td class="py-3.5 px-4 text-center">
+                        <span class="bg-amber-100 text-amber-800 font-bold px-2.5 py-1 rounded-lg text-xs">${totalWorkingDays} ${currentLang === 'hi' ? 'दिन' : 'Days'}</span>
+                    </td>
+                    <td class="py-3.5 px-4 text-right font-bold text-slate-900">₹${totalPay.toLocaleString('en-IN')}</td>
+                    <td class="py-3.5 px-4 text-right font-semibold text-emerald-600">₹${Number(w.givenMoney).toLocaleString('en-IN')}</td>
+                    <td class="py-3.5 px-4 text-right font-bold ${balanceDue < 0 ? 'text-emerald-600' : 'text-rose-600'}">
+                        ₹${balanceDue.toLocaleString('en-IN')}
+                    </td>
+                    <td class="py-3.5 px-4 sm:px-6 text-center">
+                        <div class="flex items-center justify-center space-x-1.5">
+                            <button onclick="openSettleModal('${w.id}')" title="Pay / Settle" class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 flex items-center justify-center transition">
+                                <i class="fa-solid fa-wallet text-xs"></i>
+                            </button>
+                            <button onclick="openEditModal('${w.id}')" title="Edit Worker" class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center justify-center transition">
+                                <i class="fa-solid fa-pen text-xs"></i>
+                            </button>
+                            <button onclick="promptDeleteWorker('${w.id}', '${escapeHtml(w.name)}')" title="Delete Worker" class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 flex items-center justify-center transition">
+                                <i class="fa-solid fa-trash text-xs"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            updateDashboardStats(workers);
+        }
+
+        // Calculate total working days for a worker (Base manual working days + sum of attendance marks)
+        function getComputedWorkingDays(workerId, baseDays) {
+            let attendanceSum = 0;
+            for (const dateKey in attendanceRecords) {
+                if (attendanceRecords[dateKey][workerId] !== undefined) {
+                    attendanceSum += Number(attendanceRecords[dateKey][workerId]);
+                }
+            }
+            // If attendance has entries, we can use baseDays as initial + attendance or override. Let's add attendance marks to baseDays or use baseDays if no attendance. 
+            // Better yet, baseDays serves as initial entry when added, and attendance adds up daily.
+            return Number(baseDays) + attendanceSum;
+        }
+
+        // Attendance Sheet Renderer
+        function renderAttendanceSheet() {
+            const dateStr = document.getElementById('attendanceDateInput').value || new Date().toISOString().slice(0, 10);
+            document.getElementById('attendanceDateBadge').textContent = `${currentLang === 'hi' ? 'दिनांक' : 'Date'}: ${formatDate(dateStr)}`;
+
+            const tbody = document.getElementById('attendanceTableBody');
+            const emptyState = document.getElementById('attendanceEmptyState');
+            tbody.innerHTML = '';
+
+            if (workers.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden');
+
+            if (!attendanceRecords[dateStr]) {
+                attendanceRecords[dateStr] = {};
+            }
+
+            workers.forEach(w => {
+                const currentStatus = attendanceRecords[dateStr][w.id] !== undefined ? attendanceRecords[dateStr][w.id] : 1; // Default Present (1)
+                const computedDays = getComputedWorkingDays(w.id, w.workingDays);
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50/80 transition border-b border-slate-200';
+                tr.innerHTML = `
+                    <td class="py-3.5 px-4 sm:px-6">
+                        <div class="font-bold text-slate-900">${escapeHtml(w.name)}</div>
+                        <div class="text-[11px] text-slate-400">ID: #${w.id}</div>
+                    </td>
+                    <td class="py-3.5 px-4 font-medium text-slate-700">₹${Number(w.payPerDay).toLocaleString('en-IN')}</td>
+                    <td class="py-3.5 px-4 text-center">
+                        <div class="inline-flex rounded-xl p-1 bg-slate-100 border border-slate-200 space-x-1">
+                            <button onclick="setAttendance('${dateStr}', '${w.id}', 1)" class="px-3 py-1.5 rounded-lg text-xs font-bold transition ${currentStatus === 1 ? 'bg-emerald-600 text-white shadow' : 'text-slate-600 hover:bg-slate-200'}" data-en="Present (1)" data-hi="उपस्थित (1)">Present</button>
+                            <button onclick="setAttendance('${dateStr}', '${w.id}', 0.5)" class="px-3 py-1.5 rounded-lg text-xs font-bold transition ${currentStatus === 0.5 ? 'bg-amber-500 text-slate-950 shadow' : 'text-slate-600 hover:bg-slate-200'}" data-en="Half (0.5)" data-hi="आधा (0.5)">Half</button>
+                            <button onclick="setAttendance('${dateStr}', '${w.id}', 0)" class="px-3 py-1.5 rounded-lg text-xs font-bold transition ${currentStatus === 0 ? 'bg-rose-600 text-white shadow' : 'text-slate-600 hover:bg-slate-200'}" data-en="Absent (0)" data-hi="अनुपस्थित (0)">Absent</button>
+                        </div>
+                    </td>
+                    <td class="py-3.5 px-4 text-right font-bold text-slate-900">
+                        <span class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-lg text-xs">${computedDays} ${currentLang === 'hi' ? 'दिन' : 'Days'}</span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            updateDashboardStats(workers);
+        }
+
+        function setAttendance(dateStr, workerId, status) {
+            if (!attendanceRecords[dateStr]) attendanceRecords[dateStr] = {};
+            attendanceRecords[dateStr][workerId] = status;
+            localStorage.setItem('buildledger_attendance', JSON.stringify(attendanceRecords));
+            renderAttendanceSheet();
+            showToast(currentLang === 'hi' ? 'उपस्थिति सहेजी गई' : 'Attendance updated');
+        }
+
+        // Update Dashboard Summary Stats
+        function updateDashboardStats(list) {
+            let totalWorkers = list.length;
+            let totalPayroll = 0;
+            let totalAdvance = 0;
+            let totalBalance = 0;
+
+            list.forEach(w => {
+                const totalWorkingDays = getComputedWorkingDays(w.id, w.workingDays);
+                const totalPay = Number(w.payPerDay) * totalWorkingDays;
+                const balanceDue = totalPay - Number(w.givenMoney);
+
+                totalPayroll += totalPay;
+                totalAdvance += Number(w.givenMoney);
+                totalBalance += balanceDue;
+            });
+
+            document.getElementById('statTotalWorkers').textContent = totalWorkers;
+            document.getElementById('statTotalPayroll').textContent = '₹' + totalPayroll.toLocaleString('en-IN');
+            document.getElementById('statTotalAdvance').textContent = '₹' + totalAdvance.toLocaleString('en-IN');
+            document.getElementById('statTotalBalance').textContent = '₹' + totalBalance.toLocaleString('en-IN');
+        }
+
+        // Modal Functions (Add / Edit)
+        function openModal(workerId = null) {
+            const modal = document.getElementById('workerModal');
+            const form = document.getElementById('workerForm');
+            form.reset();
+            document.getElementById('workerId').value = '';
+
+            if (workerId) {
+                document.getElementById('modalTitle').textContent = currentLang === 'hi' ? 'मजदूर प्रोफ़ाइल संपादित करें' : 'Edit Worker Profile';
+                document.getElementById('modalIcon').className = 'fa-solid fa-pen text-sm';
+                
+                const worker = workers.find(w => w.id === workerId);
+                if (worker) {
+                    document.getElementById('workerId').value = worker.id;
+                    document.getElementById('workerName').value = worker.name;
+                    document.getElementById('payPerDay').value = worker.payPerDay;
+                    document.getElementById('startDate').value = worker.startDate;
+                    document.getElementById('workingDays').value = worker.workingDays;
+                    document.getElementById('givenMoney').value = worker.givenMoney;
+                }
+            } else {
+                document.getElementById('modalTitle').textContent = currentLang === 'hi' ? 'नया मजदूर प्रोफ़ाइल जोड़ें' : 'Add Worker Profile';
+                document.getElementById('modalIcon').className = 'fa-solid fa-user-plus text-sm';
+                document.getElementById('startDate').valueAsDate = new Date();
+                document.getElementById('workingDays').value = 0;
+                document.getElementById('givenMoney').value = 0;
+            }
+
+            calculatePayroll();
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('workerModal').classList.add('hidden');
+        }
+
+        function openEditModal(workerId) {
+            openModal(workerId);
+        }
+
+        // Form Submit Handler (Add or Update)
+        function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const id = document.getElementById('workerId').value;
+            const name = document.getElementById('workerName').value.trim();
+            const payPerDay = parseFloat(document.getElementById('payPerDay').value);
+            const startDate = document.getElementById('startDate').value;
+            const workingDays = parseFloat(document.getElementById('workingDays').value);
+            const givenMoney = parseFloat(document.getElementById('givenMoney').value) || 0;
+
+            if (id) {
+                const index = workers.findIndex(w => w.id === id);
+                if (index !== -1) {
+                    workers[index] = { ...workers[index], name, payPerDay, startDate, workingDays, givenMoney };
+                    showToast(currentLang === 'hi' ? 'मजदूर रिकॉर्ड सफलतापूर्वक अपडेट किया गया!' : 'Worker record successfully updated!');
+                }
+            } else {
+                const newWorker = {
+                    id: Date.now().toString().slice(-6),
+                    name,
+                    payPerDay,
+                    startDate,
+                    workingDays,
+                    givenMoney
+                };
+                workers.unshift(newWorker);
+                showToast(currentLang === 'hi' ? 'नया मजदूर सफलतापूर्व जोड़ा गया!' : 'New worker successfully added!');
+            }
+
+            saveAndRefresh();
+            closeModal();
+        }
+
+        // Settle / Pay Modal Functions
+        function openSettleModal(workerId) {
+            const worker = workers.find(w => w.id === workerId);
+            if (!worker) return;
+
+            const totalWorkingDays = getComputedWorkingDays(worker.id, worker.workingDays);
+            const totalPay = Number(worker.payPerDay) * totalWorkingDays;
+            const balanceDue = totalPay - Number(worker.givenMoney);
+
+            document.getElementById('settleWorkerId').value = worker.id;
+            document.getElementById('settleWorkerNameDisplay').textContent = worker.name;
+            document.getElementById('settleCurrentBalance').textContent = '₹' + balanceDue.toLocaleString('en-IN');
+            document.getElementById('paymentAmount').value = '';
+
+            document.getElementById('settleModal').classList.remove('hidden');
+        }
+
+        function closeSettleModal() {
+            document.getElementById('settleModal').classList.add('hidden');
+        }
+
+        function handleSettleSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('settleWorkerId').value;
+            const payment = parseFloat(document.getElementById('paymentAmount').value) || 0;
+
+            const worker = workers.find(w => w.id === id);
+            if (worker) {
+                worker.givenMoney = Number(worker.givenMoney) + payment;
+                saveAndRefresh();
+                closeSettleModal();
+                showToast(currentLang === 'hi' ? `₹${payment} का भुगतान दर्ज किया गया!` : `Payment of ₹${payment} recorded successfully!`);
+            }
+        }
+
+        // Fixed Delete Worker with Custom Modal (No native alert/confirm)
+        function promptDeleteWorker(workerId, workerName) {
+            const title = currentLang === 'hi' ? 'मजदूर हटाएं' : 'Delete Worker';
+            const msg = currentLang === 'hi' ? `क्या आप वाकई "${workerName}" को हटाना चाहते हैं?` : `Are you sure you want to delete "${workerName}"?`;
+            
+            showCustomModal(title, msg, () => {
+                workers = workers.filter(w => w.id !== workerId);
+                // Clean up attendance records for this worker
+                for (const d in attendanceRecords) {
+                    if (attendanceRecords[d][workerId]) delete attendanceRecords[d][workerId];
+                }
+                localStorage.setItem('buildledger_attendance', JSON.stringify(attendanceRecords));
+                saveAndRefresh();
+                showToast(currentLang === 'hi' ? 'मजदूर रिकॉर्ड हटा दिया गया' : 'Worker record deleted');
+            });
+        }
+
+        // Custom Modal Controller
+        function showCustomModal(title, message, onConfirm) {
+            document.getElementById('customModalTitle').textContent = title;
+            document.getElementById('customModalMessage').textContent = message;
+            const confirmBtn = document.getElementById('customModalConfirmBtn');
+            
+            // Replace click listener cleanly
+            const newConfirmBtn = confirmBtn.cloneNode(true);
+            confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+
+            newConfirmBtn.addEventListener('click', () => {
+                onConfirm();
+                closeCustomModal();
+            });
+
+            document.getElementById('customModal').classList.remove('hidden');
+        }
+
+        function closeCustomModal() {
+            document.getElementById('customModal').classList.add('hidden');
+        }
+
+        // Search / Filter
+        function filterWorkers() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = workers.filter(w => w.name.toLowerCase().includes(query));
+            renderWorkers(filtered);
+        }
+
+        // Persistence & Refresh
+        function saveAndRefresh() {
+            localStorage.setItem('buildledger_workers', JSON.stringify(workers));
+            if (currentTab === 'roster') renderWorkers();
+            else renderAttendanceSheet();
+        }
+
+        // Reset All Data
+        function clearAllData() {
+            const title = currentLang === 'hi' ? 'सभी डेटा रीसेट करें' : 'Reset All Data';
+            const msg = currentLang === 'hi' ? 'चेतावनी: क्या आप सभी मजदूर और उपस्थिति डेटा हटाना चाहते हैं?' : 'Warning: This will clear all workers and attendance records. Proceed?';
+
+            showCustomModal(title, msg, () => {
+                workers = [];
+                attendanceRecords = {};
+                localStorage.removeItem('buildledger_attendance');
+                saveAndRefresh();
+                showToast(currentLang === 'hi' ? 'सभी डेटा साफ़ कर दिया गया है' : 'All data cleared');
+            });
+        }
+
+        // Export CSV Data
+        function exportData() {
+            if (workers.length === 0) {
+                showToast(currentLang === 'hi' ? 'निर्यात के लिए कोई डेटा नहीं है' : 'No data to export', 'error');
+                return;
+            }
+
+            let csv = 'ID,Worker Name,Pay Per Day,Starting Date,Working Days,Given Money,Total Pay,Balance Due\n';
+            workers.forEach(w => {
+                const totalWorkingDays = getComputedWorkingDays(w.id, w.workingDays);
+                const totalPay = Number(w.payPerDay) * totalWorkingDays;
+                const balanceDue = totalPay - Number(w.givenMoney);
+                csv += `"${w.id}","${w.name}",${w.payPerDay},${w.startDate},${totalWorkingDays},${w.givenMoney},${totalPay},${balanceDue}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', `buildledger_payroll_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            showToast(currentLang === 'hi' ? 'CSV फ़ाइल सफलतापूर्वक डाउनलोड हो गई!' : 'CSV exported successfully!');
+        }
+
+        // Toast Notification System
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const msgEl = document.getElementById('toastMsg');
+            const titleEl = document.getElementById('toastTitle');
+            const iconEl = document.getElementById('toastIcon');
+
+            msgEl.textContent = message;
+            if (type === 'success') {
+                titleEl.textContent = currentLang === 'hi' ? 'सफलता' : 'Success';
+                iconEl.className = 'fa-solid fa-circle-check text-amber-400 text-lg';
+            } else {
+                titleEl.textContent = currentLang === 'hi' ? 'सूचना' : 'Notice';
+                iconEl.className = 'fa-solid fa-triangle-exclamation text-amber-400 text-lg';
+            }
+
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Date formatter helper
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const parts = dateStr.split('-');
+            if (parts.length === 3) {
+                return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+            return dateStr;
+        }
+
+        // HTML Escape helper
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
+```
+### What has been updated:
+1. **Fixed Delete Worker Bug:** Replaced browser-incompatible `confirm()` dialogs with a robust custom confirmation modal (`showCustomModal`), ensuring delete actions execute smoothly across mobile browsers and Webviews.
+2. **Comprehensive Daily Attendance System:** Added a dedicated **Daily Attendance** tab where site managers can pick any date and mark workers as **Present (1)**, **Half-Day (0.5)**, or **Absent (0)** with instant auto-save to `localStorage`.
+3. **Attendance Linked to Payroll:** Daily attendance marks automatically add up and sync with each worker's total working days and overall pay calculations.
+4. **Mobile-First & Touch-Optimized:** Optimized font sizes, touch targets, scrollable tables, and viewport settings for seamless one-handed operation on mobile phones and tablets.
+5. **Bilingual Hindi Support:** Fully retained and expanded English and Hindi language toggle across all new attendance buttons and status indicators.
